@@ -72,6 +72,8 @@ El archivo `sales_data.xlsx` contiene información sobre ventas con las siguient
 
 ### 📊 **Patrones y Observaciones Principales**  
 
+#### Fase 1:
+
 1. **Estructura de los Datos**  
    - **Fechas**: 19 fechas únicas, siendo **2024-01-03** la más frecuente (9 repeticiones).  
    - **Tiendas**: 3 tiendas únicas, con la tienda **103** siendo la más frecuente (38 registros).  
@@ -94,7 +96,85 @@ El archivo `sales_data.xlsx` contiene información sobre ventas con las siguient
    - **Precio vs. Ventas**: Los productos más caros parecen tener menos unidades vendidas (requiere confirmación).  
    - **Tendencia Temporal**: Se analizarán patrones estacionales en ventas durante la fase de modelado.  
 
+# Fase 2: Explicación del Código
+
+### Código en `data_preprocessing.py`
+#### 1. Eliminar duplicados
+- **`data.drop_duplicates()`**:
+  - Elimina las filas duplicadas del DataFrame.
+  - Se imprime la cantidad de filas duplicadas eliminadas.
+
+#### 2. Manejo de valores nulos
+- Las columnas `Units_Sold` y `Unit_Price` se convierten a tipo numérico con:
+  ```python
+  pd.to_numeric
+  ```
+- Los valores nulos se rellenan con la **mediana** de cada columna usando:
+  ```python
+  .fillna()
+  ```
+
+#### 3. Conversión de fechas
+- La columna `Date` se convierte al tipo `datetime` con:
+  ```python
+  pd.to_datetime
+  ```
+
+#### 4. Codificación de variables categóricas
+- Se utiliza **`pd.get_dummies()`** para convertir las columnas `Store` y `Category` en variables binarias.
+- El parámetro `drop_first=True` evita la multicolinealidad eliminando la categoría de referencia.
+
+#### 5. Generación de nuevas características
+- Se crea una nueva columna `Total_Sales` calculada como:
+  ```python
+  Units_Sold * Unit_Price
+  ```
+
 ---
+
+### Código en `eda.ipynb`
+#### 1. Configuración del entorno
+- Importación de bibliotecas esenciales:
+  ```python
+  import pandas as pd
+  import seaborn as sns
+  import matplotlib.pyplot as plt
+  ```
+- Configuración de gráficos:
+  ```python
+  sns.set_theme()
+  plt.rcParams['figure.figsize'] = (10, 6)
+  ```
+
+#### 2. Cargar los datos
+- Se utiliza **`pd.read_csv()`** para cargar el archivo CSV:
+  ```python
+  data = pd.read_csv('data/sales_data.csv')
+  ```
+- Si las columnas no se separan correctamente, se ajustan usando:
+  ```python
+  .str.split()
+  ```
+
+#### 3. Importar y aplicar `preprocess_data`
+- Se importa la función `preprocess_data` desde el script `data_preprocessing.py`:
+  ```python
+  from scripts.data_preprocessing import preprocess_data
+  ```
+- Se aplica la función a los datos:
+  ```python
+  clean_data = preprocess_data(data)
+  ```
+
+#### 4. Visualización
+- Se genera un histograma de la nueva columna `Total_Sales`:
+  ```python
+  sns.histplot(clean_data['Total_Sales'], bins=30)
+  plt.title('Distribución de Ventas Totales')
+  plt.show()
+  ```
+---
+
 
 ### 🚀 **Ejecución del Proyecto**  
 1. Asegúrate de tener activado el entorno virtual.  
