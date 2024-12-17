@@ -42,15 +42,29 @@ La estructura de carpetas y archivos está organizada de la siguiente manera:
 ```bash
 /data_pipeline_project
 ├── data/
+│   ├── sales_data_cleaned.csv # Archivo de datos de ventas limpio de duplicados
 │   └── sales_data.xlsx  # Archivo de datos de ventas.
 ├── notebooks/
-│   └── eda.ipynb        # Análisis exploratorio de datos.
+│   ├── eda.ipynb        # Análisis exploratorio de datos.
+│   ├── date_preproc.ipynb        # Preprocesamiento de Datos
+│   ├── informe_final.ipynb        # Informe de Interpretación de Resultados y Recomendaciones.
+│   └── model.ipynb        #  Modelo Predictivo y Evaluación.
 ├── scripts/
 │   ├── data_preprocessing.py  # Limpieza y transformación.
+│   ├── eda.py          # Análisis Exploratorio de Datos (EDA)
 │   ├── model_training.py      # Entrenamiento del modelo.
 │   └── utils.py               # Funciones reutilizables.
 ├── reports/
-│   └── eda_report.pdf         # Reporte en formato PDF.
+│   ├── graficos
+│   │  ├── eda          # Gráficos del Análisis exploratorio de Datos. 
+│   │  ├── mpe          # Gráficos del modelo predictivo
+│   │  └── preprocessing        # Gráficos de preprocesamiento de datos
+│   └── PDF
+│   │  ├── eda         # Informe del EDA en HTML y PDF.
+│   │  ├── mpe         # Informe del Modelo predictivo y evaluación en HTML y PDF.
+│   │  └── resrec      # Informe Final de Interpretación de Resultados y Recomendaciones
+├── models/
+│   └── sales_predictor_model_best.pkl # Modelo predictor entrenado con el mejor modelo.
 ├── main.py                    # Script principal del pipeline.
 └── requirements.txt           # Dependencias del proyecto.
 ```
@@ -68,111 +82,6 @@ El archivo `sales_data.xlsx` contiene información sobre ventas con las siguient
 | **Units_Sold**  | Número de unidades vendidas (almacenada como texto, convertir a numérico).    |
 | **Unit_Price**  | Precio por unidad (almacenado como texto, convertir a numérico).              |
 
----
-
-### 📊 **Patrones y Observaciones Principales**  
-
-#### Fase 1:
-
-1. **Estructura de los Datos**  
-   - **Fechas**: 19 fechas únicas, siendo **2024-01-03** la más frecuente (9 repeticiones).  
-   - **Tiendas**: 3 tiendas únicas, con la tienda **103** siendo la más frecuente (38 registros).  
-   - **Categorías**: 3 categorías ("Electronics", "Clothing", "Home Goods"). La más repetida: **Home Goods** (38 registros).  
-   - **Valores Numéricos**:  
-     - **Units_Sold**: Mínimos valores de venta (~20 unidades), con 25 unidades siendo el valor más frecuente.  
-     - **Unit_Price**: Solo **3 precios diferentes**, siendo **19.99** el más frecuente.  
-
-2. **Duplicados**  
-   - Existen **55 filas duplicadas**. Se requiere decidir si eliminarlas o validarlas.  
-
-3. **Valores Faltantes**  
-   - No hay valores faltantes en ninguna columna.  
-
-4. **Observaciones de Visualización**  
-   - La distribución de **Units_Sold** tiene ligera concentración en valores bajos.  
-   - **Unit_Price** muestra únicamente 3 precios, sugiriendo baja variación.  
-
-5. **Posibles Relaciones**  
-   - **Precio vs. Ventas**: Los productos más caros parecen tener menos unidades vendidas (requiere confirmación).  
-   - **Tendencia Temporal**: Se analizarán patrones estacionales en ventas durante la fase de modelado.  
-
-# Fase 2: Explicación del Código
-
-### Código en `data_preprocessing.py`
-#### 1. Eliminar duplicados
-- **`data.drop_duplicates()`**:
-  - Elimina las filas duplicadas del DataFrame.
-  - Se imprime la cantidad de filas duplicadas eliminadas.
-
-#### 2. Manejo de valores nulos
-- Las columnas `Units_Sold` y `Unit_Price` se convierten a tipo numérico con:
-  ```python
-  pd.to_numeric
-  ```
-- Los valores nulos se rellenan con la **mediana** de cada columna usando:
-  ```python
-  .fillna()
-  ```
-
-#### 3. Conversión de fechas
-- La columna `Date` se convierte al tipo `datetime` con:
-  ```python
-  pd.to_datetime
-  ```
-
-#### 4. Codificación de variables categóricas
-- Se utiliza **`pd.get_dummies()`** para convertir las columnas `Store` y `Category` en variables binarias.
-- El parámetro `drop_first=True` evita la multicolinealidad eliminando la categoría de referencia.
-
-#### 5. Generación de nuevas características
-- Se crea una nueva columna `Total_Sales` calculada como:
-  ```python
-  Units_Sold * Unit_Price
-  ```
-
----
-
-### Código en `eda.ipynb`
-#### 1. Configuración del entorno
-- Importación de bibliotecas esenciales:
-  ```python
-  import pandas as pd
-  import seaborn as sns
-  import matplotlib.pyplot as plt
-  ```
-- Configuración de gráficos:
-  ```python
-  sns.set_theme()
-  plt.rcParams['figure.figsize'] = (10, 6)
-  ```
-
-#### 2. Cargar los datos
-- Se utiliza **`pd.read_csv()`** para cargar el archivo CSV:
-  ```python
-  data = pd.read_csv('data/sales_data.csv')
-  ```
-- Si las columnas no se separan correctamente, se ajustan usando:
-  ```python
-  .str.split()
-  ```
-
-#### 3. Importar y aplicar `preprocess_data`
-- Se importa la función `preprocess_data` desde el script `data_preprocessing.py`:
-  ```python
-  from scripts.data_preprocessing import preprocess_data
-  ```
-- Se aplica la función a los datos:
-  ```python
-  clean_data = preprocess_data(data)
-  ```
-
-#### 4. Visualización
-- Se genera un histograma de la nueva columna `Total_Sales`:
-  ```python
-  sns.histplot(clean_data['Total_Sales'], bins=30)
-  plt.title('Distribución de Ventas Totales')
-  plt.show()
-  ```
 ---
 
 
