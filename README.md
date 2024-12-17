@@ -30,7 +30,10 @@ Antes de ejecutar el proyecto, asegúrate de configurar tu entorno virtual y las
    ```bash
    pip freeze > requirements.txt
    ```
-
+5. **Instalar dependencia openpyxl si es necesario hacerlos de forma independiente.**  
+   ```bash
+   pip install openpyxl
+   ```
 ---
 
 ### 📂 **Estructura del Proyecto**  
