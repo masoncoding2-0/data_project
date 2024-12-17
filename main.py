@@ -1,5 +1,5 @@
 from scripts.data_preproc import preprocess_data
-from scripts.model_train import train_model, evaluate_model
+from scripts.model_training import train_model, evaluate_model
 
 class DataPipeline:
     def __init__(self, data_path):
